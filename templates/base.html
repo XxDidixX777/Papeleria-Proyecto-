@@ -1,0 +1,10 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{% block title %}ERP Papelería{% endblock %}</title><link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"></head><body>
+{% if session.uid %}<nav>
+<a href="{{ url_for('dashboard') }}">Inicio</a><a href="{{ url_for('pos') }}">Vender</a><a href="{{ url_for('ventas') }}">Ventas</a>
+<a href="{{ url_for('productos') }}">Productos</a><a href="{{ url_for('clientes') }}">Clientes</a><a href="{{ url_for('caja') }}">Caja</a>
+{% if session.rol == 'admin' %}<a href="{{ url_for('compras') }}">Compras</a><a href="{{ url_for('proveedores') }}">Proveedores</a>
+<a href="{{ url_for('reportes') }}">Reportes</a><a href="{{ url_for('usuarios') }}">Usuarios</a>{% endif %}
+<span class="sp"></span><span style="color:#aab">{{ session.nombre }}</span><a href="{{ url_for('logout') }}">Salir</a></nav>{% endif %}
+<main>{% for cat, m in get_flashed_messages(with_categories=true) %}<div class="msg {{ cat }}">{{ m }}</div>{% endfor %}
+{% block body %}{% endblock %}</main></body></html>

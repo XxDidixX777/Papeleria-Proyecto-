@@ -1,0 +1,5 @@
+{% extends "base.html" %}{% block body %}<h1>Ventas</h1>
+<form class="row card" method="get"><div><label>Fecha</label><input type="date" name="fecha" value="{{ fecha }}"></div><button>Ver</button></form>
+<table><tr><th>#</th><th>Hora</th><th>Pago</th><th>Cliente</th><th>Vendedor</th><th class="r">Total</th><th></th></tr>
+{% for v in rows %}<tr style="{{ 'opacity:.5;text-decoration:line-through' if v.anulada }}"><td><a href="{{ url_for('venta_detalle', vid=v.id) }}">{{ v.id }}</a></td><td>{{ v.fecha[11:16] }}</td><td>{{ v.metodo }}</td><td>{{ v.cliente or '' }}</td><td>{{ v.vendedor }}</td><td class="r">{{ v.total|money }}</td><td>{{ 'anulada' if v.anulada }}</td></tr>
+{% else %}<tr><td colspan="7">Sin ventas ese día.</td></tr>{% endfor %}</table>{% endblock %}

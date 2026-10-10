@@ -1,0 +1,25 @@
+{% extends "base.html" %}{% block body %}<h1>Registrar venta</h1>
+<div class="pos"><div class="card"><label>Buscar por nombre o escanear código (Enter)</label>
+<input id="q" style="width:100%" autofocus autocomplete="off"><div id="res" class="res" style="margin-top:.6rem"></div></div>
+<div class="card"><table id="cart"><tr><th>Ítem</th><th>Cant.</th><th class="r">Precio</th><th class="r">Subtotal</th><th></th></tr></table>
+<p class="tot" id="total">$ 0</p><div class="row"><div><label>Pago</label><select id="metodo" onchange="mostrarCli()"><option value="efectivo">Efectivo</option><option value="credito">Crédito (fiado)</option></select></div>
+<div id="cli" style="display:none"><label>Cliente</label><select id="cliente"><option value="">—</option>{% for c in clientes %}<option value="{{ c.id }}">{{ c.nombre }}</option>{% endfor %}</select></div></div>
+<p id="err" class="warn"></p><button onclick="guardar()" style="width:100%;font-size:1.1rem">Cobrar</button></div></div>
+<script>
+const P={{ productos|tojson }}, ADMIN={{ 'true' if session.rol=='admin' else 'false' }};let cart=[];
+const fmt=v=>'$ '+Math.round(v).toLocaleString('es-CO');
+function mostrarCli(){document.getElementById('cli').style.display=metodo.value=='credito'?'block':'none'}
+q.addEventListener('input',()=>{const t=q.value.toLowerCase().trim();res.innerHTML='';if(!t)return;
+ P.filter(p=>p.nombre.toLowerCase().includes(t)||(p.codigo||'').toLowerCase()==t).slice(0,8).forEach(p=>{
+  const b=document.createElement('button');b.textContent=`${p.nombre} — ${fmt(p.precio)}`+(p.tipo=='producto'?` (stock ${p.stock})`:'');b.onclick=()=>add(p);res.appendChild(b)})});
+q.addEventListener('keydown',e=>{if(e.key!='Enter')return;e.preventDefault();const t=q.value.trim().toLowerCase();
+ const p=P.find(x=>(x.codigo||'').toLowerCase()==t)||(res.firstChild&&P.filter(x=>x.nombre.toLowerCase().includes(t))[0]);if(p)add(p)});
+function add(p){let l=cart.find(c=>c.id==p.id);if(l)l.cantidad++;else cart.push({id:p.id,nombre:p.nombre,precio:p.precio,cantidad:1});q.value='';res.innerHTML='';q.focus();draw()}
+function draw(){const t=document.getElementById('cart');t.innerHTML='<tr><th>Ítem</th><th>Cant.</th><th class="r">Precio</th><th class="r">Subtotal</th><th></th></tr>';let tot=0;
+ cart.forEach((l,i)=>{tot+=l.cantidad*l.precio;const r=t.insertRow();r.innerHTML=`<td>${l.nombre}</td><td><input type="number" min="0.01" step="any" value="${l.cantidad}" style="width:70px" onchange="cart[${i}].cantidad=+this.value;draw()"></td>
+ <td class="r">${ADMIN?`<input type="number" min="0" step="any" value="${l.precio}" style="width:90px" onchange="cart[${i}].precio=+this.value;draw()">`:fmt(l.precio)}</td><td class="r">${fmt(l.cantidad*l.precio)}</td><td><button class="dng" onclick="cart.splice(${i},1);draw()">×</button></td>`});
+ document.getElementById('total').textContent=fmt(tot)}
+async function guardar(){err.textContent='';const r=await fetch('{{ url_for("venta_guardar") }}',{method:'POST',headers:{'Content-Type':'application/json'},
+ body:JSON.stringify({metodo:metodo.value,cliente_id:cliente.value,items:cart.map(l=>({id:l.id,cantidad:l.cantidad,precio:l.precio}))})});
+ const d=await r.json();if(d.ok)location=d.url;else err.textContent=d.error||'Error'}
+</script>{% endblock %}

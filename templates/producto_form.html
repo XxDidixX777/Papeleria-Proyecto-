@@ -1,0 +1,12 @@
+{% extends "base.html" %}{% block body %}<h1>{{ 'Editar' if p and p.id else 'Nuevo' }} producto o servicio</h1>
+<form method="post" class="card"><div class="row">
+<div><label>Código / barras</label><input name="codigo" value="{{ p.codigo or '' if p else '' }}"></div>
+<div><label>Nombre *</label><input name="nombre" required value="{{ p.nombre if p else '' }}"></div>
+<div><label>Categoría</label><input name="categoria" value="{{ p.categoria or '' if p else '' }}"></div>
+<div><label>Tipo</label><select name="tipo"><option value="producto" {{ 'selected' if p and p.tipo=='producto' }}>Producto</option><option value="servicio" {{ 'selected' if p and p.tipo=='servicio' }}>Servicio (fotocopias, impresiones)</option></select></div></div>
+<div class="row"><div><label>Costo</label><input name="costo" type="number" step="any" min="0" value="{{ p.costo if p else 0 }}"></div>
+<div><label>Precio de venta</label><input name="precio" type="number" step="any" min="0" value="{{ p.precio if p else 0 }}"></div>
+<div><label>Stock mínimo</label><input name="stock_minimo" type="number" step="any" min="0" value="{{ p.stock_minimo if p else 0 }}"></div>
+{% if not (p and p.id) %}<div><label>Existencia inicial</label><input name="stock" type="number" step="any" min="0" value="0"></div>{% endif %}</div>
+<p><button>Guardar</button> <a class="btn sec" href="{{ url_for('productos') }}">Cancelar</a></p></form>
+{% if p and p.id %}<form method="post" action="{{ url_for('producto_eliminar', pid=p.id) }}" onsubmit="return confirm('¿Desactivar este producto?')"><button class="dng">Desactivar producto</button></form>{% endif %}{% endblock %}

@@ -1,0 +1,5 @@
+{% extends "base.html" %}{% block body %}<h1>Kardex: {{ p.nombre }}</h1><p>Existencia actual: <b>{{ p.stock|qty }}</b> · Costo promedio: {{ p.costo|money }}</p>
+<form method="post" action="{{ url_for('producto_ajuste', pid=p.id) }}" class="card row"><div><label>Nuevo stock contado</label><input name="stock" type="number" step="any" min="0" required></div>
+<div><label>Motivo del ajuste</label><input name="motivo" required placeholder="conteo físico, merma, daño..."></div><button>Ajustar inventario</button></form>
+<table><tr><th>Fecha</th><th>Tipo</th><th class="r">Cantidad</th><th class="r">Stock resultante</th><th>Detalle</th></tr>
+{% for m in movs %}<tr><td>{{ m.fecha }}</td><td>{{ m.tipo }}</td><td class="r">{{ m.cantidad|qty }}</td><td class="r">{{ m.stock_resultante|qty }}</td><td>{{ m.detalle }}</td></tr>{% endfor %}</table>{% endblock %}

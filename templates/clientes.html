@@ -1,0 +1,3 @@
+{% extends "base.html" %}{% block body %}<h1>Clientes</h1>
+<form method="post" class="card row"><div><label>Nombre *</label><input name="nombre" required></div><div><label>Teléfono</label><input name="telefono"></div><button>Agregar</button></form>
+<table><tr><th>Nombre</th><th>Teléfono</th><th class="r">Saldo por cobrar</th></tr>{% for c in rows %}<tr><td><a href="{{ url_for('cliente_detalle', cid=c.id) }}">{{ c.nombre }}</a></td><td>{{ c.telefono or '' }}</td><td class="r {{ 'warn' if c.saldo>0 }}">{{ c.saldo|money }}</td></tr>{% endfor %}</table>{% endblock %}

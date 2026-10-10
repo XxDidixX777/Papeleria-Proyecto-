@@ -1,0 +1,6 @@
+{% extends "base.html" %}{% block body %}<h1>Venta #{{ v.id }} {% if v.anulada %}<span class="warn">(ANULADA)</span>{% endif %}</h1>
+<div class="card"><p>{{ v.fecha }} · {{ v.metodo }}{% if v.cliente %} · Cliente: {{ v.cliente }}{% endif %} · Atendió: {{ v.vendedor }}</p>
+<table><tr><th>Ítem</th><th class="r">Cant.</th><th class="r">Precio</th><th class="r">Subtotal</th></tr>{% for i in items %}<tr><td>{{ i.nombre }}</td><td class="r">{{ i.cantidad|qty }}</td><td class="r">{{ i.precio|money }}</td><td class="r">{{ (i.cantidad*i.precio)|money }}</td></tr>{% endfor %}</table>
+<p class="tot">Total: {{ v.total|money }}</p></div>
+<p class="noprint"><button class="sec" onclick="print()">Imprimir</button> <a class="btn" href="{{ url_for('pos') }}">Nueva venta</a></p>
+{% if session.rol=='admin' and not v.anulada %}<form class="noprint" method="post" action="{{ url_for('venta_anular', vid=v.id) }}" onsubmit="return confirm('¿Anular esta venta?')"><button class="dng">Anular venta</button></form>{% endif %}{% endblock %}

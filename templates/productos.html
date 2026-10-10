@@ -1,0 +1,10 @@
+{% extends "base.html" %}{% block body %}<h1>Productos y servicios</h1>
+<form class="row card" method="get"><div><label>Buscar</label><input name="q" value="{{ q }}" placeholder="nombre, código o categoría"></div>
+<label style="margin:0"><input type="checkbox" name="bajos" value="1" {{ 'checked' if request.args.get('bajos') }}> Solo stock bajo</label>
+<button>Filtrar</button>{% if session.rol=='admin' %}<a class="btn sec" href="{{ url_for('producto_form') }}">+ Nuevo</a>{% endif %}</form>
+<table><tr><th>Código</th><th>Nombre</th><th>Categoría</th>{% if session.rol=='admin' %}<th class="r">Costo</th>{% endif %}<th class="r">Precio</th><th class="r">Stock</th><th></th></tr>
+{% for p in productos %}<tr><td>{{ p.codigo or '' }}</td><td>{{ p.nombre }}{% if p.tipo=='servicio' %} <small>(servicio)</small>{% endif %}</td><td>{{ p.categoria or '' }}</td>
+{% if session.rol=='admin' %}<td class="r">{{ p.costo|money }}</td>{% endif %}<td class="r">{{ p.precio|money }}</td>
+<td class="r {{ 'warn' if p.tipo=='producto' and p.stock<=p.stock_minimo }}">{{ p.stock|qty if p.tipo=='producto' else '—' }}</td>
+<td>{% if session.rol=='admin' %}<a href="{{ url_for('producto_form', pid=p.id) }}">Editar</a>{% if p.tipo=='producto' %} · <a href="{{ url_for('kardex', pid=p.id) }}">Kardex</a>{% endif %}{% endif %}</td></tr>
+{% else %}<tr><td colspan="7">Sin resultados.</td></tr>{% endfor %}</table>{% endblock %}

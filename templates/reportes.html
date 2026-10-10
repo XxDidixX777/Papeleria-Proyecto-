@@ -1,0 +1,9 @@
+{% extends "base.html" %}{% block body %}<h1>Reportes</h1>
+<form class="row card" method="get"><div><label>Desde</label><input type="date" name="desde" value="{{ desde }}"></div><div><label>Hasta</label><input type="date" name="hasta" value="{{ hasta }}"></div><button>Consultar</button>
+<a class="btn sec" href="{{ url_for('reporte_csv', desde=desde, hasta=hasta) }}">Exportar ventas (CSV)</a></form>
+<div class="grid"><div class="card kpi"><small>Ventas ({{ r.n }})</small><b>{{ r.ventas|money }}</b></div><div class="card kpi"><small>Utilidad bruta</small><b>{{ (r.ventas-r.costo)|money }}</b></div>
+<div class="card kpi"><small>Gastos (egresos de caja)</small><b>{{ gastos|money }}</b></div><div class="card kpi"><small>Utilidad estimada</small><b>{{ (r.ventas-r.costo-gastos)|money }}</b></div>
+<div class="card kpi"><small>Valor del inventario (a costo)</small><b>{{ valor_inv|money }}</b></div><div class="card kpi"><small>Cartera por cobrar</small><b>{{ cartera|money }}</b></div></div>
+<div class="grid"><div><h2>Más vendidos</h2><table><tr><th>Producto</th><th class="r">Cant.</th><th class="r">Utilidad</th></tr>{% for t in top %}<tr><td>{{ t.nombre }}</td><td class="r">{{ t.cant|qty }}</td><td class="r">{{ t.utilidad|money }}</td></tr>{% endfor %}</table></div>
+<div><h2>Ventas por día</h2><table>{% for d in por_dia %}<tr><td>{{ d.dia }}</td><td class="r">{{ d.n }}</td><td class="r">{{ d.total|money }}</td></tr>{% endfor %}</table></div>
+<div><h2>Sin rotación en el periodo</h2><table>{% for p in sin_rotacion %}<tr><td>{{ p.nombre }}</td><td class="r">{{ p.stock|qty }}</td></tr>{% endfor %}</table></div></div>{% endblock %}

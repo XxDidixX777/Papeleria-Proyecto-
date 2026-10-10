@@ -1,0 +1,7 @@
+{% extends "base.html" %}{% block body %}<h1>Proveedores</h1>
+<form method="post" class="card row">{% if edit %}<input type="hidden" name="id" value="{{ edit.id }}">{% endif %}
+<div><label>Nombre *</label><input name="nombre" required value="{{ edit.nombre if edit else '' }}"></div>
+<div><label>Teléfono</label><input name="telefono" value="{{ edit.telefono or '' if edit else '' }}"></div>
+<div><label>Notas</label><input name="notas" value="{{ edit.notas or '' if edit else '' }}"></div><button>{{ 'Actualizar' if edit else 'Agregar' }}</button></form>
+<table><tr><th>Nombre</th><th>Teléfono</th><th>Notas</th><th></th></tr>{% for r in rows %}<tr><td>{{ r.nombre }}</td><td>{{ r.telefono or '' }}</td><td>{{ r.notas or '' }}</td>
+<td><a href="{{ url_for('proveedores', edit=r.id) }}">Editar</a> · <form style="display:inline" method="post" action="{{ url_for('proveedor_eliminar', pid=r.id) }}"><button class="dng" style="padding:.1rem .5rem">×</button></form></td></tr>{% endfor %}</table>{% endblock %}

@@ -1,0 +1,4 @@
+{% extends "base.html" %}{% block body %}<h1>{{ c.nombre }}</h1><p>Saldo pendiente: <b class="{{ 'warn' if c.saldo>0 }}">{{ c.saldo|money }}</b></p>
+{% if c.saldo>0 %}<form method="post" class="card row"><div><label>Registrar abono</label><input name="valor" type="number" step="any" min="1" max="{{ c.saldo }}" required></div><button>Abonar</button></form>{% endif %}
+<div class="grid"><div><h2>Ventas a crédito</h2><table>{% for v in cred %}<tr><td><a href="{{ url_for('venta_detalle', vid=v.id) }}">#{{ v.id }}</a> {{ v.fecha[:10] }}</td><td class="r">{{ v.total|money }}</td></tr>{% else %}<tr><td>Ninguna</td></tr>{% endfor %}</table></div>
+<div><h2>Abonos</h2><table>{% for a in abonos %}<tr><td>{{ a.fecha[:10] }}</td><td class="r">{{ a.valor|money }}</td></tr>{% else %}<tr><td>Ninguno</td></tr>{% endfor %}</table></div></div>{% endblock %}

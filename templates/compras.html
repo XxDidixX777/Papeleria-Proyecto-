@@ -1,0 +1,2 @@
+{% extends "base.html" %}{% block body %}<h1>Compras</h1><p><a class="btn" href="{{ url_for('compra_nueva') }}">+ Registrar compra</a></p>
+<table><tr><th>#</th><th>Fecha</th><th>Proveedor</th><th class="r">Total</th><th>Pago</th></tr>{% for r in rows %}<tr><td>{{ r.id }}</td><td>{{ r.fecha }}</td><td>{{ r.proveedor or '—' }}</td><td class="r">{{ r.total|money }}</td><td>{{ 'Caja' if r.pagada_caja else 'Otro' }}</td></tr>{% endfor %}</table>{% endblock %}

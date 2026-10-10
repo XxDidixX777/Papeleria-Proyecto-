@@ -1,0 +1,9 @@
+{% extends "base.html" %}{% block body %}<h1>Resumen</h1>
+<div class="grid">
+<div class="card kpi"><small>Ventas de hoy</small><b>{{ ventas_hoy.t|money }}</b><small>{{ ventas_hoy.n }} ventas</small></div>
+<div class="card kpi"><small>Por cobrar (crédito)</small><b>{{ cartera|money }}</b></div>
+<div class="card kpi"><small>Caja</small><b>{{ 'Abierta' if caja else 'Cerrada' }}</b>{% if not caja %}<a href="{{ url_for('caja') }}">Abrir caja</a>{% endif %}</div>
+<div class="card kpi"><small>Productos por agotarse</small><b class="{{ 'warn' if bajos }}">{{ bajos|length }}</b></div></div>
+{% if bajos %}<div class="card"><h2>Reponer pronto</h2><table><tr><th>Producto</th><th class="r">Stock</th><th class="r">Mínimo</th></tr>
+{% for p in bajos %}<tr><td>{{ p.nombre }}</td><td class="r warn">{{ p.stock|qty }}</td><td class="r">{{ p.stock_minimo|qty }}</td></tr>{% endfor %}</table></div>{% endif %}
+{% endblock %}

@@ -1,0 +1,6 @@
+{% extends "base.html" %}{% block body %}<h1>Usuarios</h1>
+<form method="post" class="card row"><div><label>Nombre</label><input name="nombre" required></div><div><label>Usuario</label><input name="usuario" required></div><div><label>Contraseña</label><input name="clave" type="password" minlength="6" required></div>
+<div><label>Rol</label><select name="rol"><option value="vendedor">Vendedor</option><option value="admin">Propietario/Admin</option></select></div><button>Crear</button></form>
+<table><tr><th>Nombre</th><th>Usuario</th><th>Rol</th><th>Estado</th><th></th></tr>{% for u in usuarios %}<tr><td>{{ u.nombre }}</td><td>{{ u.usuario }}</td><td>{{ u.rol }}</td><td>{{ 'activo' if u.activo else 'inactivo' }}</td>
+<td><form style="display:inline" method="post" action="{{ url_for('usuario_toggle', uid=u.id) }}"><button class="sec">Activar/Desactivar</button></form>
+<form style="display:inline" method="post" action="{{ url_for('usuario_clave', uid=u.id) }}"><input name="clave" type="password" minlength="6" placeholder="nueva clave" required style="width:120px"><button>Cambiar</button></form></td></tr>{% endfor %}</table>{% endblock %}

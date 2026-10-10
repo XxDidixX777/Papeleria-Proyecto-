@@ -1,0 +1,10 @@
+{% extends "base.html" %}{% block body %}<h1>Registrar compra</h1>
+<form method="post" class="card"><div class="row"><div><label>Proveedor</label><select name="proveedor_id"><option value="">— sin proveedor —</option>{% for p in proveedores %}<option value="{{ p.id }}">{{ p.nombre }}</option>{% endfor %}</select></div>
+<label style="margin:0"><input type="checkbox" name="pagada_caja" value="1"> Pagada con dinero de la caja</label></div>
+<table id="t"><tr><th>Producto</th><th>Cantidad</th><th>Costo unitario</th><th></th></tr></table>
+<p><button type="button" class="sec" onclick="fila()">+ Agregar línea</button></p><p><button>Guardar compra</button></p></form>
+<template id="tpl"><tr><td><select name="producto_id" onchange="this.closest('tr').querySelector('[name=costo]').value=this.selectedOptions[0].dataset.c">
+<option value="">—</option>{% for p in productos %}<option value="{{ p.id }}" data-c="{{ p.costo }}">{{ p.nombre }}</option>{% endfor %}</select></td>
+<td><input name="cantidad" type="number" step="any" min="0" value="1"></td><td><input name="costo" type="number" step="any" min="0" value="0"></td>
+<td><button type="button" class="dng" onclick="this.closest('tr').remove()">×</button></td></tr></template>
+<script>function fila(){document.getElementById('t').appendChild(document.getElementById('tpl').content.cloneNode(true))}fila();</script>{% endblock %}
