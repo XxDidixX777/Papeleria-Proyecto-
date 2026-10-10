@@ -1,4 +1,12 @@
-{% extends "base.html" %}{% block body %}
-<div class="card" style="max-width:340px;margin:4rem auto"><h1>Ingresar</h1>
-<form method="post"><label>Usuario</label><input name="usuario" required autofocus style="width:100%">
-<label>Contraseña</label><input name="clave" type="password" required style="width:100%"><p><button>Entrar</button></p></form></div>{% endblock %}
+{% extends "base.html" %}{% block title %}Ingresar · {{ tienda }}{% endblock %}
+{% block portada %}
+<div class="portada">
+  <h1>{{ tienda }}</h1>
+  <form method="post" class="etiqueta">
+    {% for cat, m in get_flashed_messages(with_categories=true) %}<div class="msg {{ cat }}" role="alert">{{ m }}</div>{% endfor %}
+    <label for="usuario">Usuario</label><input id="usuario" name="usuario" required autofocus autocomplete="username">
+    <label for="clave">Contraseña</label><input id="clave" name="clave" type="password" required autocomplete="current-password">
+    <button>Entrar</button>
+  </form>
+</div>
+{% endblock %}

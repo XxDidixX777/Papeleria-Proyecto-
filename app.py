@@ -8,7 +8,7 @@ import csv
 import io
 import os
 import sqlite3
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from functools import wraps
 
 from flask import (Flask, Response, abort, flash, g, jsonify, redirect,
@@ -118,6 +118,25 @@ def qty(v):
     return f"{(v or 0):g}"
 
 
+SECCIONES = {
+    "dashboard": "dashboard", "pos": "pos", "venta_guardar": "pos",
+    "ventas": "ventas", "venta_detalle": "ventas", "venta_anular": "ventas",
+    "productos": "productos", "producto_form": "productos", "kardex": "productos",
+    "clientes": "clientes", "cliente_detalle": "clientes", "caja": "caja",
+    "compras": "compras", "compra_nueva": "compras", "proveedores": "proveedores",
+    "reportes": "reportes", "usuarios": "usuarios",
+}
+DIAS = ["lunes", "martes", "miércoles", "jueves", "viernes", "sábado", "domingo"]
+MESES = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto",
+         "septiembre", "octubre", "noviembre", "diciembre"]
+
+
+@app.context_processor
+def contexto():
+    return {"tienda": os.environ.get("ERP_TIENDA", "Papelería"),
+            "seccion": SECCIONES.get(request.endpoint)}
+
+
 # ------------------------------------------------------------------- seguridad
 def admin_required(f):
     @wraps(f)
@@ -222,12 +241,26 @@ def caja_esperado(db, c):
 @app.route("/")
 def dashboard():
     db = get_db()
-    hoy = date.today().isoformat()
+    hoy = date.today()
     ventas_hoy = db.execute("SELECT COALESCE(SUM(total),0) t, COUNT(*) n FROM ventas "
-                            "WHERE date(fecha)=? AND anulada=0", (hoy,)).fetchone()
+                            "WHERE date(fecha)=? AND anulada=0", (hoy.isoformat(),)).fetchone()
+    lista_hoy = db.execute(
+        "SELECT v.id, v.fecha, v.metodo, v.total, v.anulada, c.nombre cliente FROM ventas v "
+        "LEFT JOIN clientes c ON c.id=v.cliente_id WHERE date(v.fecha)=? ORDER BY v.id DESC LIMIT 12",
+        (hoy.isoformat(),)).fetchall()
     bajos = db.execute("SELECT * FROM productos WHERE activo=1 AND tipo='producto' "
-                       "AND stock <= stock_minimo ORDER BY stock").fetchall()
-    return render_template("dashboard.html", ventas_hoy=ventas_hoy, bajos=bajos,
+                       "AND stock <= stock_minimo ORDER BY stock LIMIT 6").fetchall()
+    dias = [hoy - timedelta(days=i) for i in range(6, -1, -1)]
+    totales = {r["d"]: r["t"] for r in db.execute(
+        "SELECT date(fecha) d, SUM(total) t FROM ventas WHERE anulada=0 AND date(fecha) >= ? GROUP BY d",
+        (dias[0].isoformat(),))}
+    maximo = max([totales.get(d.isoformat(), 0) for d in dias] + [1])
+    semana = [{"dia": DIAS[d.weekday()][:3], "total": totales.get(d.isoformat(), 0),
+               "alto": round(100 * totales.get(d.isoformat(), 0) / maximo), "hoy": d == hoy}
+              for d in dias]
+    fecha_larga = f"{DIAS[hoy.weekday()]} {hoy.day} de {MESES[hoy.month - 1]}"
+    return render_template("dashboard.html", ventas_hoy=ventas_hoy, lista_hoy=lista_hoy, bajos=bajos,
+                           semana=semana, fecha_larga=fecha_larga,
                            cartera=cartera_total(db), caja=caja_abierta())
 
 
@@ -410,7 +443,8 @@ def pos():
         flash("Abre la caja antes de registrar ventas.", "error")
         return redirect(url_for("caja"))
     prods = [dict(r) for r in db.execute(
-        "SELECT id, codigo, nombre, precio, stock, tipo FROM productos WHERE activo=1 ORDER BY nombre")]
+        "SELECT id, codigo, nombre, categoria, precio, stock, stock_minimo, tipo FROM productos "
+        "WHERE activo=1 ORDER BY nombre")]
     clientes = db.execute("SELECT id, nombre FROM clientes WHERE activo=1 ORDER BY nombre").fetchall()
     return render_template("pos.html", productos=prods, clientes=clientes)
 

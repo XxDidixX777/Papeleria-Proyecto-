@@ -1,10 +1,57 @@
+{%- macro ico(n) -%}
+{%- if n == 'casa' -%}<svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8v10a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>
+{%- elif n == 'etiqueta' -%}<svg viewBox="0 0 24 24"><path d="M20.6 13.4l-7.2 7.2a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"/><circle cx="7.5" cy="7.5" r="1.3"/></svg>
+{%- elif n == 'recibo' -%}<svg viewBox="0 0 24 24"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/></svg>
+{%- elif n == 'caja' -%}<svg viewBox="0 0 24 24"><path d="M21 8l-9-5-9 5v8l9 5 9-5z"/><path d="M3 8l9 5 9-5M12 13v8"/></svg>
+{%- elif n == 'gente' -%}<svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20v-1a5 5 0 0 1 5-5h3a5 5 0 0 1 5 5v1"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M21.5 20v-1a5 5 0 0 0-3-4.6"/></svg>
+{%- elif n == 'monedas' -%}<svg viewBox="0 0 24 24"><path d="M3 8h18v12H3zM3 8l3-4h12l3 4"/><path d="M16 14h2.5"/></svg>
+{%- elif n == 'camion' -%}<svg viewBox="0 0 24 24"><path d="M2 6h11v10H2zM13 10h4l3 3v3h-7"/><circle cx="6" cy="18" r="2"/><circle cx="16.5" cy="18" r="2"/></svg>
+{%- elif n == 'tienda' -%}<svg viewBox="0 0 24 24"><path d="M3 9l1-5h16l1 5M3 9a3 3 0 0 0 6 0 3 3 0 0 0 6 0 3 3 0 0 0 6 0M5 12v8h14v-8"/></svg>
+{%- elif n == 'barras' -%}<svg viewBox="0 0 24 24"><path d="M4 20V11M10 20V4M16 20v-6M2 20h20"/></svg>
+{%- else -%}<svg viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/></svg>
+{%- endif -%}
+{%- endmacro -%}
+{%- set TABS = [
+ ('dashboard','Inicio','casa','#2d4bd6','#fff',false),
+ ('pos','Vender','etiqueta','#e8453c','#fff',false),
+ ('ventas','Ventas','recibo','#f08a24','#241300',false),
+ ('productos','Productos','caja','#f2c200','#2a2100',false),
+ ('clientes','Clientes','gente','#d6478f','#fff',false),
+ ('caja','Caja','monedas','#1e9e8f','#fff',false),
+ ('compras','Compras','camion','#8a6a43','#fff',true),
+ ('proveedores','Proveedores','tienda','#5d7a99','#fff',true),
+ ('reportes','Reportes','barras','#6c4bd1','#fff',true),
+ ('usuarios','Usuarios','escudo','#5b6475','#fff',true)] -%}
+{%- set ns = namespace(c='#2d4bd6', on='#fff', first=true) -%}
+{%- for key, label, icon, color, on, admin in TABS -%}{%- if key == seccion -%}{%- set ns.c = color -%}{%- set ns.on = on -%}{%- endif -%}{%- endfor -%}
 <!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>{% block title %}ERP Papelería{% endblock %}</title><link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"></head><body>
-{% if session.uid %}<nav>
-<a href="{{ url_for('dashboard') }}">Inicio</a><a href="{{ url_for('pos') }}">Vender</a><a href="{{ url_for('ventas') }}">Ventas</a>
-<a href="{{ url_for('productos') }}">Productos</a><a href="{{ url_for('clientes') }}">Clientes</a><a href="{{ url_for('caja') }}">Caja</a>
-{% if session.rol == 'admin' %}<a href="{{ url_for('compras') }}">Compras</a><a href="{{ url_for('proveedores') }}">Proveedores</a>
-<a href="{{ url_for('reportes') }}">Reportes</a><a href="{{ url_for('usuarios') }}">Usuarios</a>{% endif %}
-<span class="sp"></span><span style="color:#aab">{{ session.nombre }}</span><a href="{{ url_for('logout') }}">Salir</a></nav>{% endif %}
-<main>{% for cat, m in get_flashed_messages(with_categories=true) %}<div class="msg {{ cat }}">{{ m }}</div>{% endfor %}
-{% block body %}{% endblock %}</main></body></html>
+<title>{% block title %}{{ tienda }}{% endblock %}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600..800&family=Caveat:wght@600&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"></head>
+<body style="--acento:{{ ns.c }};--sobre-acento:{{ ns.on }}">
+{% if session.uid %}
+<div class="app">
+  <header class="cab">
+    <a class="rotulo" href="{{ url_for('dashboard') }}"><svg viewBox="0 0 24 24"><path d="M4 20l1-5L16.5 3.5a2.1 2.1 0 0 1 3 3L8 18z"/><path d="M14 6l4 4"/></svg>{{ tienda }}</a>
+    <div class="usuario"><span>{{ session.nombre }}</span><a href="{{ url_for('logout') }}">Salir</a></div>
+  </header>
+  <div class="cuerpo">
+    <nav class="tabs" aria-label="Secciones">
+      {%- for key, label, icon, color, on, admin in TABS %}
+        {%- if not admin or session.rol == 'admin' %}
+      <a class="tab{{ ' on' if key == seccion }}{{ ' aparte' if admin and ns.first }}" href="{{ url_for(key) }}" style="--c:{{ color }};--on:{{ on }}"{{ ' aria-current="page"'|safe if key == seccion }}>{{ ico(icon) }}<span>{{ label }}</span></a>
+          {%- if admin %}{% set ns.first = false %}{% endif %}
+        {%- endif %}
+      {%- endfor %}
+    </nav>
+    <main class="hoja">
+      {% for cat, m in get_flashed_messages(with_categories=true) %}<div class="msg {{ cat }}" role="status">{{ m }}</div>{% endfor %}
+      {% block body %}{% endblock %}
+    </main>
+  </div>
+</div>
+{% else %}
+<main class="app">{% block portada %}{% block body_anon %}{% endblock %}{% endblock %}</main>
+{% endif %}
+</body></html>

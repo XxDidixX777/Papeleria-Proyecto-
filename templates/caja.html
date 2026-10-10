@@ -1,4 +1,4 @@
-{% extends "base.html" %}{% block body %}<h1>Caja</h1>
+{% extends "base.html" %}{% block body %}<h1>Caja</h1>{% if c %}<span class="sello">CAJA ABIERTA</span>{% else %}<span class="sello cerrada">CAJA CERRADA</span>{% endif %}
 {% if not c %}<form method="post" class="card row"><input type="hidden" name="accion" value="abrir"><div><label>Base inicial en efectivo</label><input name="base" type="number" step="any" min="0" value="0" required></div><button>Abrir caja</button></form>
 {% else %}<div class="card"><p>Abierta desde {{ c.apertura }} · Base {{ c.base|money }} · Efectivo esperado ahora: <b>{{ esperado|money }}</b></p>
 <form method="post" class="row"><input type="hidden" name="accion" value="movimiento"><div><label>Movimiento manual</label><select name="tipo"><option value="egreso">Egreso (gasto)</option><option value="ingreso">Ingreso</option></select></div>

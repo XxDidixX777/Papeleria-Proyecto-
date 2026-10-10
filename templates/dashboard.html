@@ -1,9 +1,45 @@
-{% extends "base.html" %}{% block body %}<h1>Resumen</h1>
-<div class="grid">
-<div class="card kpi"><small>Ventas de hoy</small><b>{{ ventas_hoy.t|money }}</b><small>{{ ventas_hoy.n }} ventas</small></div>
-<div class="card kpi"><small>Por cobrar (crédito)</small><b>{{ cartera|money }}</b></div>
-<div class="card kpi"><small>Caja</small><b>{{ 'Abierta' if caja else 'Cerrada' }}</b>{% if not caja %}<a href="{{ url_for('caja') }}">Abrir caja</a>{% endif %}</div>
-<div class="card kpi"><small>Productos por agotarse</small><b class="{{ 'warn' if bajos }}">{{ bajos|length }}</b></div></div>
-{% if bajos %}<div class="card"><h2>Reponer pronto</h2><table><tr><th>Producto</th><th class="r">Stock</th><th class="r">Mínimo</th></tr>
-{% for p in bajos %}<tr><td>{{ p.nombre }}</td><td class="r warn">{{ p.stock|qty }}</td><td class="r">{{ p.stock_minimo|qty }}</td></tr>{% endfor %}</table></div>{% endif %}
+{% extends "base.html" %}{% block body %}
+<h1>Hoy, {{ fecha_larga }}</h1>
+<div class="tablero">
+  <div>
+    <h2 style="margin-top:0">Ventas del día</h2>
+    <ul class="libro">
+      {% for v in lista_hoy %}
+      <li class="{{ 'anulada' if v.anulada }}"><span class="hora">{{ v.fecha[11:16] }}</span>
+        <a href="{{ url_for('venta_detalle', vid=v.id) }}">{{ v.cliente or 'Mostrador' }}{% if v.metodo == 'credito' %} <small>(fiado)</small>{% endif %}</a>
+        <span class="monto">{{ v.total|money }}</span></li>
+      {% else %}
+      <li class="vacio">Todavía no hay ventas hoy. <a href="{{ url_for('pos') }}">Registrar la primera</a></li>
+      {% endfor %}
+      <li class="suma"><span></span><span>Total del día <small>({{ ventas_hoy.n }} {{ 'venta' if ventas_hoy.n == 1 else 'ventas' }})</small></span><span>{{ ventas_hoy.t|money }}</span></li>
+    </ul>
+
+    <h2>Los últimos 7 días</h2>
+    <svg class="semana" viewBox="0 0 420 165" role="img" aria-label="Ventas de los últimos 7 días">
+      <defs><pattern id="lapiz" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="6" stroke="currentColor" stroke-width="2.2"/></pattern></defs>
+      <line x1="0" y1="130" x2="420" y2="130" stroke="currentColor" opacity=".55"/>
+      {% for d in semana %}
+        {% set h = [d.alto * 1.05, 2]|max %}
+        <rect x="{{ 12 + loop.index0 * 58 }}" y="{{ 130 - h }}" width="38" height="{{ h }}" fill="url(#lapiz)" stroke="currentColor" stroke-width="1.6" opacity="{{ 1 if d.hoy else 0.7 }}"/>
+        {% if d.total > 0 %}<text x="{{ 31 + loop.index0 * 58 }}" y="{{ 124 - h }}" text-anchor="middle">{{ (d.total / 1000)|round(1)|string|replace('.', ',')|replace(',0', '') }} mil</text>{% endif %}
+        <text x="{{ 31 + loop.index0 * 58 }}" y="150" text-anchor="middle" class="{{ 'hoy' if d.hoy }}">{{ d.dia }}</text>
+      {% endfor %}
+    </svg>
+  </div>
+
+  <aside class="lateral">
+    <span class="sello {{ '' if caja else 'cerrada' }}">{{ 'CAJA ABIERTA' if caja else 'CAJA CERRADA' }}</span>
+    {% if not caja %}<p><a href="{{ url_for('caja') }}">Abre la caja</a> para empezar a vender.</p>{% endif %}
+
+    <h2>Por agotarse</h2>
+    {% for p in bajos %}
+    <a class="post" href="{{ url_for('productos', q=p.nombre) }}">{{ p.nombre }}<small>quedan {{ p.stock|qty }}, el mínimo es {{ p.stock_minimo|qty }}</small></a>
+    {% else %}
+    <div class="post bien">Todo con existencias<small>Ningún producto está bajo el mínimo</small></div>
+    {% endfor %}
+
+    <h2>Por cobrar</h2>
+    <a class="fiado" href="{{ url_for('clientes') }}"><small>Fiado pendiente</small><b>{{ cartera|money }}</b></a>
+  </aside>
+</div>
 {% endblock %}

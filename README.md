@@ -10,7 +10,8 @@ pip install -r requirements.txt
 python app.py          # abre http://127.0.0.1:5000
 ```
 Usuario inicial: `admin` / `admin123` (cámbiala en *Usuarios*). La base de datos `papeleria.db` (SQLite) se crea sola.
-Variables opcionales: `ERP_DB` (ruta de la BD) y `ERP_SECRET` (clave de sesión; defínela en producción).
+Variables opcionales: `ERP_DB` (ruta de la BD), `ERP_SECRET` (clave de sesión; defínela en producción) y `ERP_TIENDA` (nombre de la papelería que se muestra en pantalla).
+Ejemplo en Windows: `set ERP_TIENDA=Papelería El Lápiz` antes de `python app.py`.
 
 ## Módulos
 | # | Módulo | Qué hace |
